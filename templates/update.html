@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Integration</title>
+</head>
+<body>
+    <h1>API Integration</h1>
+    <form id="apiForm">
+        <label for="resource">Select a resource:</label>
+        <select name="resource" id="resource">
+            <option value="companies">Companies</option>
+            <option value="employees">Employees</option>
+        </select>
+        <br>
+        <label for="employeeId">Employee ID:</label>
+        <input type="text" name="employeeId" id="employeeId">
+        <br>
+        <label for="updatedData">Updated Data:</label>
+        <input type="text" name="updatedData" id="updatedData">
+        <br>
+        <button type="submit">Get Data</button>
+        <button type="button" id="updateButton" disabled>Update</button>
+    </form>
+
+    <div id="apiResult"></div>
+
+    <script>
+        document.getElementById("apiForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var resource = document.getElementById("resource").value;
+            var employeeId = document.getElementById("employeeId").value;
+
+            var apiUrl = "http://127.0.0.1:8000/api/v1/";
+
+            if (resource === "companies") {
+                apiUrl += "companies/";
+            } else if (resource === "employees" && employeeId !== "") {
+                apiUrl += "employees/" + employeeId + "/";
+            }
+
+            fetch(apiUrl)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    var result = JSON.stringify(data, null, 2);
+                    document.getElementById("apiResult").innerHTML = "<pre>" + result + "</pre>";
+                    document.getElementById("updateButton").disabled = false;
+                })
+                .catch(function (error) {
+                    console.log("Error:", error);
+                    document.getElementById("apiResult").innerHTML = "An error occurred while fetching the API data.";
+                });
+        });
+
+        document.getElementById("updateButton").addEventListener("click", function () {
+            var resource = document.getElementById("resource").value;
+            var employeeId = document.getElementById("employeeId").value;
+            var updatedData = document.getElementById("updatedData").value;
+
+            var apiUrl = "http://127.0.0.1:8000/api/v1/";
+
+            if (resource === "companies") {
+                apiUrl += "companies/";
+            } else if (resource === "employees" && employeeId !== "") {
+                apiUrl += "employees/" + employeeId + "/";
+            }
+
+            fetch(apiUrl, {
+                method: "PUT", // or "PATCH" for partial updates
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedData)
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        document.getElementById("apiResult").innerHTML = "Data successfully updated!";
+                    } else {
+                        document.getElementById("apiResult").innerHTML = "Failed to update data.";
+                    }
+                })
+                .catch(function (error) {
+                    console.log("Error:", error);
+                    document.getElementById("apiResult").innerHTML = "An error occurred while updating the data.";
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Integration</title>
+</head>
+<body>
+    <h1>API Integration</h1>
+    <form id="apiForm">
+        <label for="resource">Select a resource:</label>
+        <select name="resource" id="resource">
+            <option value="companies">Companies</option>
+            <option value="employees">Employees</option>
+        </select>
+        <br>
+        <label for="employeeId">Employee ID:</label>
+        <input type="text" name="employeeId" id="employeeId">
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="apiResult"></div>
+
+    <script>
+        document.getElementById("apiForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var resource = document.getElementById("resource").value;
+            var employeeId = document.getElementById("employeeId").value;
+
+            var apiUrl = "http://127.0.0.1:8000/api/v1/";
+
+            if (resource === "companies") {
+                apiUrl += "companies/";
+            } else if (resource === "employees" && employeeId !== "") {
+                apiUrl += "employees/" + employeeId + "/";
+            }
+
+            fetch(apiUrl)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    var result = JSON.stringify(data, null, 2);
+                    document.getElementById("apiResult").innerHTML = "<pre>" + result + "</pre>";
+                })
+                .catch(function (error) {
+                    console.log("Error:", error);
+                    document.getElementById("apiResult").innerHTML = "An error occurred while fetching the API data.";
+                });
+        });
+    </script>
+</body>
+</html>
